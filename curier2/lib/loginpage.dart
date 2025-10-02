@@ -1,3 +1,4 @@
+import 'package:curier2/registration.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget{
@@ -65,6 +66,22 @@ class LoginPage extends StatelessWidget{
                   ),
                 )
 
+            ),
+
+            TextButton(
+              onPressed: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context)=>Registration()),
+                );
+              },
+              child: Text(
+                'Registration',
+                style: TextStyle(
+                  color: Colors.blue,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
 
 

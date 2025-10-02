@@ -1,4 +1,5 @@
 import 'package:curier2/loginpage.dart';
+import 'package:curier2/registration.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
 
         debugShowCheckedModeBanner: false,
-        home: LoginPage()
+        home: Registration()
 
     );
 
