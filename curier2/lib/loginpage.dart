@@ -1,10 +1,20 @@
+import 'package:curier2/page/adminPage.dart';
 import 'package:curier2/registration.dart';
+import 'package:curier2/service/authService.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginPage extends StatelessWidget{
 
   final TextEditingController email = TextEditingController();
   final TextEditingController password = TextEditingController();
+
+
+  bool _obscurePassword= true;
+
+  final storage = new FlutterSecureStorage();
+  AuthService authService=AuthService();
+
 
   @override
   Widget build(BuildContext context) {
@@ -45,12 +55,7 @@ class LoginPage extends StatelessWidget{
             ),
             ElevatedButton(
                 onPressed: (){
-                  String em =email.text;
-                  String pass = password.text;
-                  print('Email: $em, Password: $pass');
-
-
-                  
+                 loginUser(context);
                 },
 
                 style: ElevatedButton.styleFrom(
@@ -93,6 +98,34 @@ class LoginPage extends StatelessWidget{
 
 
     );
+  }
+  Future<void> loginUser(BuildContext context) async{
+    try{
+
+      final response = await authService.login(email.text, password.text);
+
+      // Successful login, role-based navigation
+      final  role =await authService.getUserRole(); // Get role from AuthService
+
+      if (role == 'ADMIN') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => AdminPage()),
+        );
+      }
+      else {
+        print('Unknown role: $role');
+      }
+
+    }
+    catch(error){
+      print('Login failed: $error');
+
+    }
+
+
+
+
   }
 
   
