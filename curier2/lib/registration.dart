@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:curier2/loginpage.dart';
+import 'package:curier2/service/authService.dart';
 import 'package:date_field/date_field.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class _RegistrationState extends State<Registration> {
   final TextEditingController password = TextEditingController();
   final TextEditingController confirmPassword = TextEditingController();
   final TextEditingController cell = TextEditingController();
+  final TextEditingController nid = TextEditingController();
   final TextEditingController address = TextEditingController();
 
   final RadioGroupController genderController = RadioGroupController();
@@ -112,6 +114,29 @@ class _RegistrationState extends State<Registration> {
                       : null,
                 ),
                 SizedBox(height: 20.0),
+
+
+                TextField(
+                  controller: cell,
+                  decoration: InputDecoration(
+                    labelText: 'Cell Number',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.phone),
+                  ),
+                ),
+                SizedBox(height: 20),
+
+
+                TextField(
+                  controller: nid,
+                  decoration: InputDecoration(
+                    labelText: 'Cell Number',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.phone_android),
+                  ),
+                ),
+                SizedBox(height: 20),
+
 
                 TextFormField(
                   controller: address,
@@ -244,7 +269,7 @@ class _RegistrationState extends State<Registration> {
       var pickedImage = await ImagePickerWeb.getImageAsBytes();
       if (pickedImage != null) {
         setState(() {
-          webImage = pickedImage;
+          webImage = pickedImage;  // Store the picked image as Uint8List
         });
       }
     } else {
@@ -257,4 +282,111 @@ class _RegistrationState extends State<Registration> {
       }
     }
   }
+
+
+
+  /// Method to handle consumer registration
+  void _register() async {
+    // ✅ Check if the form (text fields) is valid
+    if (_formKey.currentState!.validate()) {
+
+      // ✅ Check if password and confirm password match
+
+      if (password.text != confirmPassword.text) {
+
+        // Show an error message if passwords don’t match
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Passwords do not match!')),
+        );
+        return; // stop further execution
+      }
+
+
+      // ✅ Validate that the user has selected an image
+      if (kIsWeb) {
+        // On Web → check if webImage (Uint8List) is selected
+        if (webImage == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please select an image.')),
+          );
+          return; // stop further execution
+        }
+      } else {
+        // On Mobile/Desktop → check if image file is selected
+        if (selectedImage == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please select an image.')),
+          );
+          return; // stop further execution
+        }
+      }
+
+      // ✅ Prepare User object (basic login info)
+      final user = {
+        "name": name.text,
+        "email": email.text,
+        "phone": cell.text,
+        "password": password.text,
+      };
+
+      // ✅ Prepare JobSeeker object (extra personal info)
+      final consumer = {
+        "name": name.text,
+        "email": email.text,
+        "phone": cell.text,
+        "nid":nid.text,
+        "gender": selectedGender ?? "Male",
+        // fallback if null
+        "address": address.text,
+        "dateOfBirth": selectedDOB?.toIso8601String() ?? "",
+        // convert DateTime to ISO string
+      };
+
+      //  Initialize your API Service
+      final apiService = AuthService();
+
+      //  Track API call success or failure
+      bool success = false;
+
+      // Send registration request (different handling for Web vs Mobile)
+      if (kIsWeb && webImage != null) {
+        // For Web → send photo as bytes
+        success = await apiService.registerConsumerWeb(
+          user: user,
+          consumer: consumer,
+          photoBytes: webImage!, // safe to use ! because already checked above
+        );
+      } else if (selectedImage != null) {
+        // For Mobile → send photo as file
+        success = await apiService.registerConsumerWeb(
+          user: user,
+          consumer : consumer,
+          photoFile: File(selectedImage!
+              .path), // safe to use ! because already checked above
+        );
+      }
+
+      //  Handle the API response
+      if (success) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Registration Successful')),
+        );
+
+        // Redirect user to Login Page after successful registration
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else {
+        // Show error message if regi
+
+      }
+    }
+  }
+
+
+
 }
+
+
