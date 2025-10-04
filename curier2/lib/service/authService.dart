@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:jwt_decode/jwt_decode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,7 +11,7 @@ class AuthService{
 
 
   Future <bool>login(String email, String password) async{
-    
+
     final url =Uri.parse('$baseUrl/auth/login');
     final headers = {'Content-Type':'application/json'};
     final body= jsonEncode({'email': email, 'password': password});
@@ -38,18 +39,56 @@ class AuthService{
 
 
 
+  /// Registers a consumer (for Web & Mobile) by sending
+  /// user data, consumer data, and optional photo (file or bytes)
+  Future<bool> registerConsumerWeb({
+    required Map<String, dynamic> user,      // User data (username, email, password, etc.)
+    required Map<String, dynamic> consumer, // Cnsuner-specific data (skills, CV, etc.)
+    File? photoFile,                         // Photo file (used on mobile/desktop platforms)
+    Uint8List ? photoBytes,                   // Photo bytes (used on web platforms)
+  })  async {
+    // Create a multipart HTTP request (POST) to your backend API
 
-  // Future<bool> registerConsumer({
-  //   required Map<String, dynamic> user,
-  //   required Map<String, dynamic> jobSeeker,
-  //   required File photo,
-  // }) async {
-  //   final dio = Dio();
+    var request = http.MultipartFile(
+      'POST',
+      Uri.parse('$baseUrl/api/consumer/'),  // Backend endpoint
+    );
+
+    // Convert User map into JSON string and add to request fields
+    request.fields['user'] = jsonEncode(user);
+
+    // Convert consumer map into JSON string and add to request fields
+    request.fields['consumer'] = jsonEncode(consumer);
 
 
+    // ---------------------- IMAGE HANDLING ----------------------
+
+    // If photoBytes is available (e.g., from web image picker)
+    if (photoBytes != null) {
+      request.fields.add(http.MultipartFile.fromBytes(
+          'photo',                // backend expects field name 'photo'
+          photoBytes,             // Uint8List is valid here
+          filename: 'profile.png' // arbitrary filename for backend
+      ));
+    }
+
+    // If photoFile is provided (mobile/desktop), attach it
+    else if (photoFile != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'photo',                // backend expects field name 'photo'
+        photoFile.path,         // file path from File object
+      ));
+    }
 
 
+    // ---------------------- SEND REQUEST ----------------------
 
+    // Send the request to backend
+    var response = await request.send();
+
+    // Return true if response code is 200 (success)
+    return response.statusCode == 200;
+  }
 
 
     Future<String?> getUserRole() async {
@@ -58,5 +97,5 @@ class AuthService{
       return prefs.getString('userRole');
     }
 
-  
+
 }
