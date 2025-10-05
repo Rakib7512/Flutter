@@ -29,7 +29,7 @@ class _RegistrationState extends State<Registration> {
   final TextEditingController address = TextEditingController();
 
   final RadioGroupController genderController = RadioGroupController();
-  final DateTimeFieldPickerPlatform dob = DateTimeFieldPickerPlatform.material;
+  // final DateTimeFieldPickerPlatform dob = DateTimeFieldPickerPlatform.material;
 
   String? selectedGender;
   DateTime? selectedDOB;
@@ -148,20 +148,20 @@ class _RegistrationState extends State<Registration> {
                   validator: (value) =>
                   value!.isEmpty ? "Please enter your address" : null,
                 ),
-                SizedBox(height: 20.0),
 
-                DateTimeField(
-                  decoration: const InputDecoration(
-                    labelText: "Date of Birth",
-                  ),
-                  mode: DateTimeFieldPickerMode.date,
-                  pickerPlatform: dob,
-                  onChanged: (DateTime? value) {
-                    setState(() {
-                      selectedDOB = value;
-                    });
-                  },
-                ),
+
+                // DateTimeField(
+                //   decoration: const InputDecoration(
+                //     labelText: "Date of Birth",
+                //   ),
+                //   mode: DateTimeFieldPickerMode.date,
+                //   pickerPlatform: dob,
+                //   onChanged: (DateTime? value) {
+                //     setState(() {
+                //       selectedDOB = value;
+                //     });
+                //   },
+                // ),
                 SizedBox(height: 20.0),
 
                 Align(
@@ -220,12 +220,7 @@ class _RegistrationState extends State<Registration> {
 
                 ElevatedButton(
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // Perform registration logic here
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Registration Successful!")),
-                      );
-                    }
+                    _register();
                   },
                   child: Text(
                     "Register",
@@ -338,7 +333,7 @@ class _RegistrationState extends State<Registration> {
         "gender": selectedGender ?? "Male",
         // fallback if null
         "address": address.text,
-        "dateOfBirth": selectedDOB?.toIso8601String() ?? "",
+        // "dateOfBirth": selectedDOB?.toIso8601String() ?? "",
         // convert DateTime to ISO string
       };
 
