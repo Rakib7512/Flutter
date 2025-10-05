@@ -49,9 +49,9 @@ class AuthService{
   })  async {
     // Create a multipart HTTP request (POST) to your backend API
 
-    var request = http.MultipartFile(
+    var request = http.MultipartRequest(
       'POST',
-      Uri.parse('$baseUrl/api/consumer/'),  // Backend endpoint
+      Uri.parse('$baseUrl/api/consumer/'), // Backend endpoint
     );
 
     // Convert User map into JSON string and add to request fields
@@ -65,7 +65,7 @@ class AuthService{
 
     // If photoBytes is available (e.g., from web image picker)
     if (photoBytes != null) {
-      request.fields.add(http.MultipartFile.fromBytes(
+      request.files.add(http.MultipartFile.fromBytes(
           'photo',                // backend expects field name 'photo'
           photoBytes,             // Uint8List is valid here
           filename: 'profile.png' // arbitrary filename for backend

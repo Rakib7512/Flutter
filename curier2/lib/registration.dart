@@ -130,9 +130,9 @@ class _RegistrationState extends State<Registration> {
                 TextField(
                   controller: nid,
                   decoration: InputDecoration(
-                    labelText: 'Cell Number',
+                    labelText: 'NID No',
                     border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.phone_android),
+                    prefixIcon: Icon(Icons.perm_identity),
                   ),
                 ),
                 SizedBox(height: 20),
