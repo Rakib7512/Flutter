@@ -1,3 +1,5 @@
+import 'package:curier2/consumer/consumer_profile.dart';
+import 'package:curier2/employee/employee_profile.dart';
 import 'package:curier2/page/adminPage.dart';
 import 'package:curier2/registration.dart';
 import 'package:curier2/service/authService.dart';
@@ -86,25 +88,49 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> loginUser(BuildContext context) async {
-    try {
+
+  Future<void> loginUser(BuildContext context) async{
+    try{
+
       final response = await authService.login(email.text, password.text);
 
-      final role = await authService.getUserRole();
+      // Successful login, role-based navigation
+      final  role =await authService.getUserRole(); // Get role from AuthService
+
 
       if (role == 'ADMIN') {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => AdminPage()),
         );
-      } else {
+      }
+      else if (role == 'CONSUMER') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => ConsumerProfile()),
+        );
+      }
+      else if (role == 'EMPLOYEE') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => EmployeeProgile()),
+        );
+      }
+
+      else {
         print('Unknown role: $role');
       }
-    } catch (error) {
-      print('Login failed: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: $error')),
-      );
+
+
+
+
     }
+    catch(error){
+      print('Login failed: $error');
+
+    }
+
+
   }
+
 }
