@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:curier2/service/authService.dart';
+import 'package:http/http.dart' as http;
 
 class EmployeeService{
 
@@ -14,10 +17,22 @@ class EmployeeService{
 
     }
     final url=Uri.parse('$baseUrl/api/employee/profile');
-    final response=await Uri.http.get(
+    final response=await http.get(
       url,
-    )
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print('Failed to load profile: ${response.statusCode} - ${response.body}');
+      return null;
+    }
   }
+
 
 
 }

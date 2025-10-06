@@ -3,6 +3,8 @@ import 'package:curier2/employee/employee_profile.dart';
 import 'package:curier2/page/adminPage.dart';
 import 'package:curier2/registration.dart';
 import 'package:curier2/service/authService.dart';
+import 'package:curier2/service/consumer_service.dart';
+import 'package:curier2/service/employee_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -104,24 +106,34 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (context) => AdminPage()),
         );
       }
-      else if (role == 'CONSUMER') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => ConsumerProfile()),
-        );
-      }
       else if (role == 'EMPLOYEE') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => EmployeeProgile()),
-        );
+        final profile = await EmployeeService().getEmployeeProfile();
+
+        if (profile != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EmployeeProgile(profile: profile),
+            ),
+          );
+        }
+      }
+      else if (role == 'CONSUMER') {
+        final profile = await ConsumerService().getConsumerProfile();
+
+        if (profile != null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => EmployeeProgile(profile: profile),
+            ),
+          );
+        }
       }
 
       else {
         print('Unknown role: $role');
       }
-
-
 
 
     }
