@@ -17,132 +17,178 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController email = TextEditingController();
   final TextEditingController password = TextEditingController();
   final AuthService authService = AuthService();
-  final FlutterSecureStorage storage = FlutterSecureStorage();
+  final FlutterSecureStorage storage = const FlutterSecureStorage();
 
   bool _obscurePassword = true;
+  bool _isLoading = false; // For progress indicator
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: email,
-              decoration: InputDecoration(
-                labelText: 'example@gmail.com',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.email),
-              ),
-            ),
-            SizedBox(height: 20.0),
-            TextField(
-              controller: password,
-              obscureText: _obscurePassword,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.lock),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Login",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.purple,
                   ),
+                ),
+                const SizedBox(height: 40.0),
+                TextField(
+                  controller: email,
+                  decoration: const InputDecoration(
+                    labelText: 'Email Address',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.email),
+                  ),
+                ),
+                const SizedBox(height: 20.0),
+                TextField(
+                  controller: password,
+                  obscureText: _obscurePassword,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: const OutlineInputBorder(),
+                    prefixIcon: const Icon(Icons.lock),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20.0),
+
+                _isLoading
+                    ? const CircularProgressIndicator(color: Colors.purple)
+                    : ElevatedButton(
+                  onPressed: () => loginUser(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.purple,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 50, vertical: 15),
+                  ),
+                  child: const Text(
+                    "Login",
+                    style: TextStyle(
+                        fontSize: 20.0, fontWeight: FontWeight.w800),
+                  ),
+                ),
+
+                const SizedBox(height: 10),
+
+                TextButton(
                   onPressed: () {
-                    setState(() {
-                      _obscurePassword = !_obscurePassword;
-                    });
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Registration()),
+                    );
                   },
+                  child: const Text(
+                    'Create a new account',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-            SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () => loginUser(context),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
-                foregroundColor: Colors.white,
-              ),
-              child: Text(
-                "Login",
-                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w800),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => Registration()),
-                );
-              },
-              child: Text(
-                'Registration',
-                style: TextStyle(
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
+  // -----------------------------
+  // LOGIN LOGIC WITH ROLE HANDLING
+  // -----------------------------
+  Future<void> loginUser(BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+    });
 
-  Future<void> loginUser(BuildContext context) async{
-    try{
-
+    try {
       final response = await authService.login(email.text, password.text);
 
-      // Successful login, role-based navigation
-      final  role =await authService.getUserRole(); // Get role from AuthService
-
+      final role = await authService.getUserRole(); // Get logged-in user role
+      print('✅ Logged in user role: $role');
 
       if (role == 'ADMIN') {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => AdminPage()),
         );
-      }
-      else if (role == 'EMPLOYEE') {
+      } else if (role == 'EMPLOYEE') {
         final profile = await EmployeeService().getEmployeeProfile();
 
         if (profile != null) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => EmployeeProgile(profile: profile),
+              builder: (context) => EmployeeProfile(profile: profile),
             ),
           );
+        } else {
+          showErrorDialog(context, 'Failed to load employee profile.');
         }
-      }
-      else if (role == 'CONSUMER') {
+      } else if (role == 'CONSUMER') {
         final profile = await ConsumerService().getConsumerProfile();
 
         if (profile != null) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => EmployeeProgile(profile: profile),
+              builder: (context) => ConsumerProfile(profile: profile),
             ),
           );
+        } else {
+          showErrorDialog(context, 'Failed to load consumer profile.');
         }
+      } else {
+        showErrorDialog(context, 'Unknown role: $role');
       }
-
-      else {
-        print('Unknown role: $role');
-      }
-
-
+    } catch (error) {
+      print('❌ Login failed: $error');
+      showErrorDialog(context, 'Invalid email or password.');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-    catch(error){
-      print('Login failed: $error');
-
-    }
-
-
   }
 
+  // -----------------------------
+  // ERROR MESSAGE HELPER
+  // -----------------------------
+  void showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Login Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            child: const Text("OK", style: TextStyle(color: Colors.purple)),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      ),
+    );
+  }
 }
