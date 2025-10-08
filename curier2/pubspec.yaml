@@ -50,6 +50,7 @@ dependencies:
   http_parser: ^4.0.0
   mime: ^1.0.0
   fl_chart: ^0.66.0
+  uuid: ^4.2.2  # (version may differ)
 
 dev_dependencies:
   flutter_test:
