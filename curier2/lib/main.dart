@@ -1,4 +1,5 @@
 import 'package:curier2/loginpage.dart';
+import 'package:curier2/page/add_parcel.dart';
 import 'package:curier2/registration.dart';
 import 'package:curier2/service/dashboard.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
 
         debugShowCheckedModeBanner: false,
-        home: PublicCourierDashboard()
+        home: AddParcelPage()
 
     );
 

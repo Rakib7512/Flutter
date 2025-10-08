@@ -1,198 +1,69 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:curier2/service/authService.dart';
 
 class ParcelService {
-  final String baseUrl = "http://localhost:8085"; // change if using emulator/device
+  final String baseUrl = 'http://localhost:8085/api/parcels'; // যদি emulator এ না হয় তাহলে use: 10.0.2.2
 
-  // 🔹 Save new parcel
+  // ✅ 1. Save new parcel
   Future<Map<String, dynamic>?> saveParcel(Map<String, dynamic> parcelData) async {
-    String? token = await AuthService().getToken();
-    if (token == null) {
-      print("❌ No token found. Please log in first.");
-      return null;
-    }
-
-    final url = Uri.parse("$baseUrl/api/parcels/save");
     final response = await http.post(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
+      Uri.parse('$baseUrl/'),
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode(parcelData),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      print("✅ Parcel saved successfully");
       return jsonDecode(response.body);
     } else {
-      print("❌ Failed to save parcel: ${response.statusCode} - ${response.body}");
+      print('Error saving parcel: ${response.body}');
       return null;
     }
   }
 
-  // 🔹 Get all parcels (Admin/Employee)
+  // ✅ 2. Get all parcels
   Future<List<dynamic>> getAllParcels() async {
-    String? token = await AuthService().getToken();
-    if (token == null) return [];
-
-    final url = Uri.parse("$baseUrl/api/parcels/all");
-    final response = await http.get(url, headers: {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    });
-
+    final response = await http.get(Uri.parse(baseUrl));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      print("❌ Failed to fetch parcels: ${response.statusCode}");
-      return [];
+      throw Exception('Failed to load parcels');
     }
   }
 
-  // 🔹 Get parcel by ID
-  Future<Map<String, dynamic>?> getParcelById(int id) async {
-    String? token = await AuthService().getToken();
-    if (token == null) return null;
-
-    final url = Uri.parse("$baseUrl/api/parcels/$id");
-    final response = await http.get(url, headers: {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    });
-
+  // ✅ 3. Track parcel by trackingId
+  Future<Map<String, dynamic>?> getParcelByTrackingId(String trackingId) async {
+    final response = await http.get(Uri.parse('$baseUrl/track/$trackingId'));
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
-      print("❌ Failed to fetch parcel: ${response.statusCode}");
+      print('Parcel not found');
       return null;
     }
   }
 
-  // 🔹 Get parcel by tracking ID
-  Future<List<dynamic>> getParcelByTrackingId(String trackingId) async {
-    String? token = await AuthService().getToken();
-    if (token == null) return [];
-
-    final url = Uri.parse("$baseUrl/api/parcels/track/$trackingId");
-    final response = await http.get(url, headers: {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    });
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      print("❌ Failed to fetch tracking info: ${response.statusCode}");
-      return [];
-    }
-  }
-
-  // 🔹 Update existing parcel
-  Future<Map<String, dynamic>?> updateParcel(Map<String, dynamic> parcelData) async {
-    String? token = await AuthService().getToken();
-    if (token == null) return null;
-
-    final url = Uri.parse("$baseUrl/api/parcels/update");
-    final response = await http.put(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(parcelData),
-    );
-
-    if (response.statusCode == 200) {
-      print("✅ Parcel updated");
-      return jsonDecode(response.body);
-    } else {
-      print("❌ Update failed: ${response.statusCode}");
-      return null;
-    }
-  }
-
-  // 🔹 Delete parcel
-  Future<bool> deleteParcel(int id) async {
-    String? token = await AuthService().getToken();
-    if (token == null) return false;
-
-    final url = Uri.parse("$baseUrl/api/parcels/delete/$id");
-    final response = await http.delete(url, headers: {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    });
-
-    if (response.statusCode == 200) {
-      print("✅ Parcel deleted");
-      return true;
-    } else {
-      print("❌ Delete failed: ${response.statusCode}");
-      return false;
-    }
-  }
-
-  // 🔹 Add tracking info for a parcel
-  Future<Map<String, dynamic>?> addTrackingToParcel(
-      int parcelId, Map<String, dynamic> trackingData) async {
-    String? token = await AuthService().getToken();
-    if (token == null) return null;
-
-    final url = Uri.parse("$baseUrl/api/parcels/$parcelId/add-tracking");
+  // ✅ 4. Transfer parcel (hub-to-hub)
+  Future<String?> transferParcel(String trackingId, String hubName, int employeeId) async {
     final response = await http.post(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(trackingData),
+      Uri.parse('$baseUrl/parcel/$trackingId/transfer?hubName=$hubName&employeeId=$employeeId'),
     );
-
     if (response.statusCode == 200) {
-      print("✅ Tracking added");
-      return jsonDecode(response.body);
+      return response.body;
     } else {
-      print("❌ Failed to add tracking: ${response.statusCode}");
+      print('Transfer failed: ${response.body}');
       return null;
     }
   }
 
-  // 🔹 Get parcel tracking history
-  Future<List<dynamic>> getParcelTrackingHistory(int parcelId) async {
-    String? token = await AuthService().getToken();
-    if (token == null) return [];
-
-    final url = Uri.parse("$baseUrl/api/parcels/$parcelId/tracking-history");
-    final response = await http.get(url, headers: {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    });
-
+  // ✅ 5. Mark parcel as delivered
+  Future<String?> deliverParcel(String trackingId, String hubName, int employeeId) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/parcel/$trackingId/delevery?hubName=$hubName&employeeId=$employeeId'),
+    );
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return response.body;
     } else {
-      print("❌ Failed to fetch tracking history: ${response.statusCode}");
-      return [];
-    }
-  }
-
-  // 🔹 Get parcel history by consumer
-  Future<List<dynamic>> getParcelHistoryByConsumer(int consumerId) async {
-    String? token = await AuthService().getToken();
-    if (token == null) return [];
-
-    final url = Uri.parse("$baseUrl/api/parcels/history/$consumerId");
-    final response = await http.get(url, headers: {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    });
-
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
-      print("❌ Failed to fetch parcel history: ${response.statusCode}");
-      return [];
+      print('Delivery failed: ${response.body}');
+      return null;
     }
   }
 }
