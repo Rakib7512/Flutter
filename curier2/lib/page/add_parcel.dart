@@ -21,18 +21,24 @@ class _AddParcelPageState extends State<AddParcelPage> {
   final uuid = Uuid();
 
   // Address data
-  List<Country> countries = [];
-  List<Division> divisions = [];
-  List<District> districts = [];
-  List<PoliceStation> policeStations = [];
+  List<Country> senderCountries = [];
+  List<Division>senderDivisions = [];
+  List<District> senderDistricts = [];
+  List<PoliceStation> senderPoliceStations = [];
 
-  // Sender
+  List<Country> receiverCountries = [];
+  List<Division> receiverDivisions = [];
+  List<District> receiverDistricts = [];
+  List<PoliceStation> receiverPoliceStations = [];
+
   final senderName = TextEditingController();
   final senderPhone = TextEditingController();
+
   Country? selectedSenderCountry;
   Division? selectedSenderDivision;
   District? selectedSenderDistrict;
   PoliceStation? selectedSenderPoliceStation;
+
   final senderLine1 = TextEditingController();
   final senderLine2 = TextEditingController();
 
@@ -42,6 +48,8 @@ class _AddParcelPageState extends State<AddParcelPage> {
   Country? selectedReceiverCountry;
   Division? selectedReceiverDivision;
   District? selectedReceiverDistrict;
+
+
   PoliceStation? selectedReceiverPoliceStation;
   final receiverLine1 = TextEditingController();
   final receiverLine2 = TextEditingController();
@@ -52,56 +60,80 @@ class _AddParcelPageState extends State<AddParcelPage> {
   @override
   void initState() {
     super.initState();
-    loadCountries();
+    loadCountriesForSender();
+    loadCountriesForReceiver();
   }
 
   // ✅ Loaders
-  Future<void> loadCountries() async {
-    countries = await parcelService.getCountries();
+  Future<void> loadCountriesForSender() async {
+    senderCountries = await parcelService.getCountries();
     setState(() {});
   }
 
-  Future<void> loadDivisions(int countryId, bool isSender) async {
-    divisions = await parcelService.getDivisionsByCountry(countryId);
+  Future<void> loadDivisionsForSender(int countryId, bool isSender) async {
+    senderDivisions = await parcelService.getDivisionsByCountry(countryId);
     setState(() {
-      if (isSender) {
         selectedSenderDivision = null;
         selectedSenderDistrict = null;
         selectedSenderPoliceStation = null;
-      } else {
-        selectedReceiverDivision = null;
-        selectedReceiverDistrict = null;
-        selectedReceiverPoliceStation = null;
-      }
-      districts.clear();
-      policeStations.clear();
+      senderDistricts.clear();
+      senderPoliceStations.clear();
     });
   }
 
-  Future<void> loadDistricts(int divisionId, bool isSender) async {
-    districts = await parcelService.getDistrictsByDivision(divisionId);
+  Future<void> loadDistrictsForSender(int divisionId, bool isSender) async {
+    senderDistricts = await parcelService.getDistrictsByDivision(divisionId);
     setState(() {
-      if (isSender) {
+
         selectedSenderDistrict = null;
         selectedSenderPoliceStation = null;
-      } else {
-        selectedReceiverDistrict = null;
-        selectedReceiverPoliceStation = null;
-      }
-      policeStations.clear();
+      senderPoliceStations.clear();
     });
   }
 
-  Future<void> loadPoliceStations(int districtId, bool isSender) async {
-    policeStations = await parcelService.getPoliceStationsByDistrict(districtId);
+  Future<void> loadPoliceStationsForSender(int districtId, bool isSender) async {
+    senderPoliceStations = await parcelService.getPoliceStationsByDistrict(districtId);
     setState(() {
-      if (isSender) {
         selectedSenderPoliceStation = null;
-      } else {
-        selectedReceiverPoliceStation = null;
-      }
     });
   }
+
+
+
+
+
+  Future<void> loadCountriesForReceiver() async {
+    receiverCountries = await parcelService.getCountries();
+    setState(() {});
+  }
+
+  Future<void> loadDivisionsForReceiver(int countryId, bool isSender) async {
+    receiverDivisions = await parcelService.getDivisionsByCountry(countryId);
+    setState(() {
+      selectedReceiverDivision = null;
+      selectedReceiverDistrict = null;
+      selectedReceiverPoliceStation = null;
+      receiverDistricts.clear();
+      receiverPoliceStations.clear();
+    });
+  }
+
+  Future<void> loadDistrictsForReceiver(int divisionId, bool isSender) async {
+    receiverDistricts = await parcelService.getDistrictsByDivision(divisionId);
+    setState(() {
+        selectedReceiverDistrict = null;
+        selectedReceiverPoliceStation = null;
+      receiverPoliceStations.clear();
+    });
+  }
+
+  Future<void> loadPoliceStationsForReceiver(int districtId, bool isSender) async {
+    receiverPoliceStations = await parcelService.getPoliceStationsByDistrict(districtId);
+    setState(() {
+        selectedReceiverPoliceStation = null;
+    });
+  }
+
 
   // ✅ Fee calculation
   void calculateFee() {
@@ -165,19 +197,23 @@ class _AddParcelPageState extends State<AddParcelPage> {
       addressLineForSender2: senderLine2.text,
       addressLineForReceiver1: receiverLine1.text,
       addressLineForReceiver2: receiverLine2.text,
-      senderCountryId: selectedSenderCountry!.id,
-      senderDivisionId: selectedSenderDivision!.id,
-      senderDistrictId: selectedSenderDistrict!.id,
-      senderPoliceStationId: selectedSenderPoliceStation!.id,
-      receiverCountryId: selectedReceiverCountry!.id,
-      receiverDivisionId: selectedReceiverDivision!.id,
-      receiverDistrictId: selectedReceiverDistrict!.id,
-      receiverPoliceStationId: selectedReceiverPoliceStation!.id,
+      sendCountry: selectedSenderCountry!.id,
+      sendDivision: selectedSenderDivision!.id,
+      sendDistrict: selectedSenderDistrict!.id,
+      sendPoliceStation: selectedSenderPoliceStation!.id,
+      receiveCountry: selectedReceiverCountry!.id,
+      receiveDivision: selectedReceiverDivision!.id,
+      receiveDistrict: selectedReceiverDistrict!.id,
+      receivePoliceStation: selectedReceiverPoliceStation!.id,
       trackingId: trackingId,
       // consumerId: consumerId,
-      // size: size,
-      // fee: fee,
+       size: size,
+      fee: fee.round(),
     );
+
+
+
+    print(parcel.toString());
 
     bool success = await parcelService.addParcel(parcel);
 
@@ -206,38 +242,45 @@ class _AddParcelPageState extends State<AddParcelPage> {
             DropdownButtonFormField<Country>(
               value: selectedSenderCountry,
               decoration: const InputDecoration(labelText: 'Sender Country'),
-              items: countries.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(),
+              items: senderCountries.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(),
               onChanged: (val) {
                 setState(() => selectedSenderCountry = val);
-                if (val != null) loadDivisions(val.id, true);
+                if (val != null) loadDivisionsForSender(val.id, true);
               },
             ),
+
+
             DropdownButtonFormField<Division>(
               value: selectedSenderDivision,
               decoration: const InputDecoration(labelText: 'Sender Division'),
-              items: divisions.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
+              items: senderDivisions.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
               onChanged: (val) {
                 setState(() => selectedSenderDivision = val);
-                if (val != null) loadDistricts(val.id, true);
+                if (val != null) loadDistrictsForSender(val.id, true);
               },
             ),
+
+
             DropdownButtonFormField<District>(
               value: selectedSenderDistrict,
               decoration: const InputDecoration(labelText: 'Sender District'),
-              items: districts.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
+              items: senderDistricts.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
               onChanged: (val) {
                 setState(() => selectedSenderDistrict = val);
-                if (val != null) loadPoliceStations(val.id, true);
+                if (val != null) loadPoliceStationsForSender(val.id, true);
               },
             ),
+
+
             DropdownButtonFormField<PoliceStation>(
               value: selectedSenderPoliceStation,
               decoration: const InputDecoration(labelText: 'Sender Police Station'),
-              items: policeStations.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
+              items: senderPoliceStations.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
               onChanged: (val) {
                 setState(() => selectedSenderPoliceStation = val);
               },
             ),
+
             TextField(controller: senderLine1, decoration: const InputDecoration(labelText: 'Sender Address Line 1')),
             TextField(controller: senderLine2, decoration: const InputDecoration(labelText: 'Sender Address Line 2')),
 
@@ -251,34 +294,34 @@ class _AddParcelPageState extends State<AddParcelPage> {
             DropdownButtonFormField<Country>(
               value: selectedReceiverCountry,
               decoration: const InputDecoration(labelText: 'Receiver Country'),
-              items: countries.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(),
+              items: receiverCountries.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(),
               onChanged: (val) {
                 setState(() => selectedReceiverCountry = val);
-                if (val != null) loadDivisions(val.id, false);
+                if (val != null) loadDivisionsForReceiver(val.id, false);
               },
             ),
             DropdownButtonFormField<Division>(
               value: selectedReceiverDivision,
               decoration: const InputDecoration(labelText: 'Receiver Division'),
-              items: divisions.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
+              items: receiverDivisions.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
               onChanged: (val) {
                 setState(() => selectedReceiverDivision = val);
-                if (val != null) loadDistricts(val.id, false);
+                if (val != null) loadDistrictsForReceiver(val.id, false);
               },
             ),
             DropdownButtonFormField<District>(
               value: selectedReceiverDistrict,
               decoration: const InputDecoration(labelText: 'Receiver District'),
-              items: districts.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
+              items: receiverDistricts.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
               onChanged: (val) {
                 setState(() => selectedReceiverDistrict = val);
-                if (val != null) loadPoliceStations(val.id, false);
+                if (val != null) loadPoliceStationsForReceiver(val.id, false);
               },
             ),
             DropdownButtonFormField<PoliceStation>(
               value: selectedReceiverPoliceStation,
               decoration: const InputDecoration(labelText: 'Receiver Police Station'),
-              items: policeStations.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
+              items: receiverPoliceStations.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
               onChanged: (val) {
                 setState(() => selectedReceiverPoliceStation = val);
               },

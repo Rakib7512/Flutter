@@ -11,14 +11,15 @@ class Parcel {
   String? addressLineForReceiver1;
   String? addressLineForReceiver2;
 
-  final int senderCountryId;
-  final int senderDivisionId;
-  final int senderDistrictId;
-  final int senderPoliceStationId;
-  final int receiverCountryId;
-  final int receiverDivisionId;
-  final int receiverDistrictId;
-  final int receiverPoliceStationId;
+  final int sendCountry;
+  final int sendDivision;
+  final int sendDistrict;
+  final int sendPoliceStation;
+
+  final int receiveCountry;
+  final int receiveDivision;
+  final int receiveDistrict;
+  final int receivePoliceStation;
 
   String? size;
   int? fee;
@@ -33,14 +34,14 @@ class Parcel {
     this.addressLineForSender2,
     this.addressLineForReceiver1,
     this.addressLineForReceiver2,
-    required this.senderCountryId,
-    required this.senderDivisionId,
-    required this.senderDistrictId,
-    required this.senderPoliceStationId,
-    required this.receiverCountryId,
-    required this.receiverDivisionId,
-    required this.receiverDistrictId,
-    required this.receiverPoliceStationId,
+    required this.sendCountry,
+    required this.sendDivision,
+    required this.sendDistrict,
+    required this.sendPoliceStation,
+    required this.receiveCountry,
+    required this.receiveDivision,
+    required this.receiveDistrict,
+    required this.receivePoliceStation,
     this.size,
     this.fee,
   }) {
@@ -57,18 +58,42 @@ class Parcel {
       "receiverPhone": receiverPhone,
       "addressLineForSender1": addressLineForSender1,
       "addressLineForSender2": addressLineForSender2,
+
       "addressLineForReceiver1": addressLineForReceiver1,
       "addressLineForReceiver2": addressLineForReceiver2,
-      "countrySender": {"id": senderCountryId},
-      "divisionSender": {"id": senderDivisionId},
-      "districtSender": {"id": senderDistrictId},
-      "policeStationSender": {"id": senderPoliceStationId},
-      "countryReceiver": {"id": receiverCountryId},
-      "divisionReceiver": {"id": receiverDivisionId},
-      "districtReceiver": {"id": receiverDistrictId},
-      "policeStationReceiver": {"id": receiverPoliceStationId},
+
+      "countrySender": {"id": sendCountry},
+      "divisionSender": {"id": sendDivision},
+      "districtSender": {"id": sendDistrict},
+      "policeStationSender": {"id": sendPoliceStation},
+
+      "countryReceiver": {"id": receiveCountry},
+      "divisionReceiver": {"id": receiveDivision},
+      "districtReceiver": {"id": receiveDistrict},
+      "policeStationReceiver": {"id": receivePoliceStation},
       "size": size,
       "fee": fee,
     };
   }
+
+
+
+  @override
+  String toString() {
+    return '''
+Parcel:
+  Sender: $senderName, Phone: $senderPhone
+  Receiver: $receiverName, Phone: $receiverPhone
+  Sender Address: $addressLineForSender1, $addressLineForSender2
+  Receiver Address: $addressLineForReceiver1, $addressLineForReceiver2
+  Sender Location IDs: Country $sendCountry, Division $sendDivision, District $sendDistrict, PoliceStation $sendPoliceStation
+  Receiver Location IDs: Country $receiveCountry, Division $receiveDivision, District $receiveDistrict, PoliceStation $receivePoliceStation
+  Tracking ID: $trackingId
+}
+  Size: $size
+  Fee: $fee
+''';
+  }
+
+
 }

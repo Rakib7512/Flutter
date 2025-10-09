@@ -10,60 +10,82 @@ class EmployeeProfile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Base URL for backend image folder
     final String baseUrl = "http://localhost:8085/images/users/";
     final String? photoName = profile['photo'];
     final String? photoUrl =
     (photoName != null && photoName.isNotEmpty) ? "$baseUrl$photoName" : null;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F7),
+
+      // 🟣 App Bar
       appBar: AppBar(
+        elevation: 3,
+        centerTitle: true,
+        backgroundColor: Colors.purple.shade600,
         title: const Text(
           "Employee Profile",
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.white,
+          ),
         ),
-        backgroundColor: Colors.deepPurple,
-        centerTitle: true,
-        elevation: 4,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_none, color: Colors.white),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () async {
+              await _authService.logout();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => LoginPage()),
+              );
+            },
+          ),
+        ],
       ),
 
       // 🟣 Drawer Menu
       drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
+        child: Column(
           children: [
             UserAccountsDrawerHeader(
-              decoration: const BoxDecoration(color: Colors.deepPurple),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.deepPurple, Colors.purpleAccent],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
               accountName: Text(
                 profile['name'] ?? 'Unknown User',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
               accountEmail: Text(profile['email'] ?? 'N/A'),
               currentAccountPicture: CircleAvatar(
                 backgroundImage: (photoUrl != null)
                     ? NetworkImage(photoUrl)
-                    : const AssetImage('assets/default_avatar.png')
-                as ImageProvider,
+                    : const AssetImage('assets/default_avatar.png') as ImageProvider,
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('My Profile'),
-              onTap: () {
-                Navigator.pop(context);
-              },
+              leading: const Icon(Icons.person_outline),
+              title: const Text("My Profile"),
+              onTap: () => Navigator.pop(context),
             ),
             ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                Navigator.pop(context);
-              },
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text("Settings"),
+              onTap: () {},
             ),
+            const Divider(),
             ListTile(
-              leading: const Icon(Icons.logout, color: Colors.red),
-              title:
-              const Text('Logout', style: TextStyle(color: Colors.red)),
+              leading: const Icon(Icons.exit_to_app, color: Colors.red),
+              title: const Text("Logout", style: TextStyle(color: Colors.red)),
               onTap: () async {
                 await _authService.logout();
                 Navigator.pushReplacement(
@@ -76,86 +98,164 @@ class EmployeeProfile extends StatelessWidget {
         ),
       ),
 
-      // 🟣 Body Content
+      // 🟣 Main Body
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            // Profile Picture
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.deepPurple, width: 3),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 6,
-                    offset: const Offset(0, 4),
+            // Profile Picture with Gradient Border
+            Center(
+              child: Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: const LinearGradient(
+                        colors: [Colors.deepPurple, Colors.purpleAccent],
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.purpleAccent.withOpacity(0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(3),
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.white,
+                      backgroundImage: (photoUrl != null)
+                          ? NetworkImage(photoUrl)
+                          : const AssetImage('assets/default_avatar.png') as ImageProvider,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: InkWell(
+                      onTap: () {
+                        // TODO: Add change photo function
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: Colors.purple.shade600,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.edit, color: Colors.white, size: 18),
+                      ),
+                    ),
                   ),
                 ],
               ),
-              child: CircleAvatar(
-                radius: 60,
-                backgroundColor: Colors.grey[200],
-                backgroundImage: (photoUrl != null)
-                    ? NetworkImage(photoUrl)
-                    : const AssetImage('assets/default_avatar.png')
-                as ImageProvider,
-              ),
             ),
 
             const SizedBox(height: 20),
 
-            // Name
+            // Name and Designation
             Text(
-              profile['name'] ?? 'Unknown',
-              style:
-              const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              profile['name'] ?? 'Unknown Employee',
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
             ),
-
-            const SizedBox(height: 10),
-
-            // Designation
+            const SizedBox(height: 5),
             Text(
               profile['designation'] ?? 'No designation',
               style: const TextStyle(
-                  fontSize: 16,
-                  fontStyle: FontStyle.italic,
-                  color: Colors.grey),
+                fontSize: 16,
+                fontStyle: FontStyle.italic,
+                color: Colors.grey,
+              ),
             ),
 
-            const SizedBox(height: 20),
-            const Divider(thickness: 1.5, color: Colors.deepPurpleAccent),
-            const SizedBox(height: 10),
+            const SizedBox(height: 25),
 
-            // Info Card Section
-            infoTile("Email", profile['email']),
-            infoTile("Gender", profile['gender']),
-            infoTile("NID", profile['nid']),
-            infoTile("Phone", profile['phone']),
-            infoTile("Address", profile['address']),
-            infoTile("Join Date", profile['joindate']?.toString().split('T')[0]),
-            infoTile("Salary", "${profile['salary']} ৳"),
-            infoTile("Hub", profile['empOnHub']),
-            const SizedBox(height: 30),
+            // Info Card
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    _buildInfoRow(Icons.email_outlined, "Email", profile['email']),
+                    _buildDivider(),
+                    _buildInfoRow(Icons.person_outline, "Gender", profile['gender']),
+                    _buildDivider(),
+                    _buildInfoRow(Icons.badge_outlined, "NID", profile['nid']),
+                    _buildDivider(),
+                    _buildInfoRow(Icons.phone, "Phone", profile['phone']),
+                    _buildDivider(),
+                    _buildInfoRow(Icons.location_on_outlined, "Address", profile['address']),
+                    _buildDivider(),
+                    _buildInfoRow(Icons.calendar_today, "Join Date",
+                        profile['joindate']?.toString().split('T')[0]),
+                    _buildDivider(),
+                    _buildInfoRow(Icons.money, "Salary", "${profile['salary']} ৳"),
+                    _buildDivider(),
+                    _buildInfoRow(Icons.location_city, "Hub", profile['empOnHub']),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            // Edit Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.purple.shade600,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: () {
+                  // TODO: Navigate to edit profile
+                },
+                icon: const Icon(Icons.edit, color: Colors.white),
+                label: const Text(
+                  "Edit Profile",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  // Reusable Info Card Widget
-  Widget infoTile(String title, String? value) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      child: ListTile(
-        leading: const Icon(Icons.arrow_right, color: Colors.deepPurple),
-        title: Text(title,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(value ?? 'N/A'),
-      ),
+  // 🟣 Reusable info row
+  Widget _buildInfoRow(IconData icon, String title, String? value) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.purple.shade600),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 3),
+              Text(value ?? 'N/A',
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87)),
+            ],
+          ),
+        ),
+      ],
     );
   }
+
+  Widget _buildDivider() => const Padding(
+    padding: EdgeInsets.symmetric(vertical: 10),
+    child: Divider(height: 1, color: Colors.grey),
+  );
 }
