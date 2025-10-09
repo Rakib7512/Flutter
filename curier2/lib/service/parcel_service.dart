@@ -1,21 +1,71 @@
 import 'dart:convert';
+import 'package:curier2/entity/country.dart';
+import 'package:curier2/entity/district.dart';
+import 'package:curier2/entity/division.dart';
+import 'package:curier2/entity/parcel.dart';
+import 'package:curier2/entity/police_station.dart';
 import 'package:http/http.dart' as http;
 
 class ParcelService {
-  final String baseUrl = "http://localhost:8085/api/parcels";
+  final String baseUrl = "http://localhost:8085/api";
 
-  Future<Map<String, dynamic>?> saveParcel(Map<String, dynamic> parcelData) async {
+  Future<bool> addParcel(Parcel parcel) async {
+
+
     final response = await http.post(
-      Uri.parse(baseUrl),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode(parcelData),
+      Uri.parse(baseUrl+'/parcels/'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(parcel.toJson()),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return jsonDecode(response.body);
+      return true;
     } else {
-      print("Error: ${response.body}");
-      return null;
+      print('Error: ${response.statusCode} ${response.body}');
+      return false;
     }
+  }
+
+
+
+  Future<List<Country>> getCountries() async {
+    final response = await http.get(Uri.parse('$baseUrl/countries/'));
+    if (response.statusCode == 200) {
+      List data = jsonDecode(response.body);
+      return data.map((e) => Country.fromJson(e)).toList();
+    }
+    throw Exception('Failed to load countries');
+  }
+
+
+
+  Future<List<Division>> getDivisionsByCountry(int countryId) async {
+    final response =
+    await http.get(Uri.parse('$baseUrl/division/by-country/$countryId'));
+    if (response.statusCode == 200) {
+      List data = jsonDecode(response.body);
+      return data.map((e) => Division.fromJson(e)).toList();
+    }
+    throw Exception('Failed to load divisions');
+  }
+
+  Future<List<District>> getDistrictsByDivision(int divisionId) async {
+    final response =
+    await http.get(Uri.parse('$baseUrl/district/by-division/$divisionId'));
+    if (response.statusCode == 200) {
+      List data = jsonDecode(response.body);
+      return data.map((e) => District.fromJson(e)).toList();
+    }
+    throw Exception('Failed to load districts');
+  }
+
+  Future<List<PoliceStation>> getPoliceStationsByDistrict(int districtId) async {
+    final response = await http
+        .get(Uri.parse('$baseUrl/policestation/by-district/$districtId'));
+    if (response.statusCode == 200) {
+      List data = jsonDecode(response.body);
+      return data.map((e) => PoliceStation.fromJson(e)).toList();
+    }
+    throw Exception('Failed to load police stations');
   }
 }

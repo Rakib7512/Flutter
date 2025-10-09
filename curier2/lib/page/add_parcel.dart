@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'package:curier2/entity/country.dart';
 import 'package:curier2/entity/district.dart';
 import 'package:curier2/entity/division.dart';
+import 'package:curier2/entity/parcel.dart';
 import 'package:curier2/entity/police_station.dart';
-import 'package:curier2/service/address_service.dart';
 import 'package:curier2/service/parcel_service.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -17,34 +17,37 @@ class AddParcelPage extends StatefulWidget {
 }
 
 class _AddParcelPageState extends State<AddParcelPage> {
-  final AddressService addressService = AddressService();
   final ParcelService parcelService = ParcelService();
   final uuid = Uuid();
 
-  // sender info
-  String senderName = '';
-  String senderPhone = '';
-  int? sendCountry, sendDivision, sendDistrict, sendPoliceStation;
-
-  // receiver info
-  String receiverName = '';
-  String receiverPhone = '';
-  int? receiveCountry, receiveDivision, receiveDistrict, receivePoliceStation;
-
-  String size = '';
-  double fee = 0;
-  String paymentMethod = '';
-  String? confirmationCode;
-
+  // Address data
   List<Country> countries = [];
   List<Division> divisions = [];
   List<District> districts = [];
   List<PoliceStation> policeStations = [];
 
-  List<Country> receiverCountries = [];
-  List<Division> receiverDivisions = [];
-  List<District> receiverDistricts = [];
-  List<PoliceStation> receiverPoliceStations = [];
+  // Sender
+  final senderName = TextEditingController();
+  final senderPhone = TextEditingController();
+  Country? selectedSenderCountry;
+  Division? selectedSenderDivision;
+  District? selectedSenderDistrict;
+  PoliceStation? selectedSenderPoliceStation;
+  final senderLine1 = TextEditingController();
+  final senderLine2 = TextEditingController();
+
+  // Receiver
+  final receiverName = TextEditingController();
+  final receiverPhone = TextEditingController();
+  Country? selectedReceiverCountry;
+  Division? selectedReceiverDivision;
+  District? selectedReceiverDistrict;
+  PoliceStation? selectedReceiverPoliceStation;
+  final receiverLine1 = TextEditingController();
+  final receiverLine2 = TextEditingController();
+
+  String? size;
+  double fee = 0;
 
   @override
   void initState() {
@@ -52,89 +55,137 @@ class _AddParcelPageState extends State<AddParcelPage> {
     loadCountries();
   }
 
+  // ✅ Loaders
   Future<void> loadCountries() async {
-    countries = await addressService.getCountries();
-    receiverCountries = await addressService.getCountries();
+    countries = await parcelService.getCountries();
     setState(() {});
   }
 
-  Future<void> onSendCountryChange(int countryId) async {
-    divisions = await addressService.getDivisionsByCountry(countryId);
-    setState(() {});
+  Future<void> loadDivisions(int countryId, bool isSender) async {
+    divisions = await parcelService.getDivisionsByCountry(countryId);
+    setState(() {
+      if (isSender) {
+        selectedSenderDivision = null;
+        selectedSenderDistrict = null;
+        selectedSenderPoliceStation = null;
+      } else {
+        selectedReceiverDivision = null;
+        selectedReceiverDistrict = null;
+        selectedReceiverPoliceStation = null;
+      }
+      districts.clear();
+      policeStations.clear();
+    });
   }
 
-  Future<void> onSendDivisionChange(int divisionId) async {
-    districts = await addressService.getDistrictsByDivision(divisionId);
-    setState(() {});
+  Future<void> loadDistricts(int divisionId, bool isSender) async {
+    districts = await parcelService.getDistrictsByDivision(divisionId);
+    setState(() {
+      if (isSender) {
+        selectedSenderDistrict = null;
+        selectedSenderPoliceStation = null;
+      } else {
+        selectedReceiverDistrict = null;
+        selectedReceiverPoliceStation = null;
+      }
+      policeStations.clear();
+    });
   }
 
-  Future<void> onSendDistrictChange(int districtId) async {
-    policeStations = await addressService.getPoliceStationsByDistrict(districtId);
-    setState(() {});
+  Future<void> loadPoliceStations(int districtId, bool isSender) async {
+    policeStations = await parcelService.getPoliceStationsByDistrict(districtId);
+    setState(() {
+      if (isSender) {
+        selectedSenderPoliceStation = null;
+      } else {
+        selectedReceiverPoliceStation = null;
+      }
+    });
   }
 
-  Future<void> onReceiveCountryChange(int countryId) async {
-    receiverDivisions = await addressService.getDivisionsByCountry(countryId);
-    setState(() {});
-  }
-
-  Future<void> onReceiveDivisionChange(int divisionId) async {
-    receiverDistricts = await addressService.getDistrictsByDivision(divisionId);
-    setState(() {});
-  }
-
-  Future<void> onReceiveDistrictChange(int districtId) async {
-    receiverPoliceStations = await addressService.getPoliceStationsByDistrict(districtId);
-    setState(() {});
-  }
-
+  // ✅ Fee calculation
   void calculateFee() {
     double base = 0;
-    switch (size) {
-      case 'SMALL': base = 100; break;
-      case 'MEDIUM': base = 300; break;
-      case 'LARGE': base = 500; break;
-      case 'EXTRA_LARGE': base = 800; break;
-    }
-    fee = base;
-    setState(() {});
-  }
 
-  Future<void> submitParcel() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final consumerId = prefs.getInt('consumerId') ?? 1; // fallback
-
-    final trackingId = uuid.v4();
-
-    final parcelData = {
-      "senderName": senderName,
-      "senderPhone": senderPhone,
-      "receiverName": receiverName,
-      "receiverPhone": receiverPhone,
-      "trackingId": trackingId,
-      "size": size,
-      "fee": fee,
-      "sendCountry": {"id": sendCountry},
-      "sendDivision": {"id": sendDivision},
-      "sendDistrict": {"id": sendDistrict},
-      "sendPoliceStation": {"id": sendPoliceStation},
-      "receiveCountry": {"id": receiveCountry},
-      "receiveDivision": {"id": receiveDivision},
-      "receiveDistrict": {"id": receiveDistrict},
-      "receivePoliceStation": {"id": receivePoliceStation},
-      "consumer": {"id": consumerId}
+    final feeMap = {
+      'SMALL': 100.0,
+      'MEDIUM': 300.0,
+      'LARGE': 500.0,
+      'EXTRA_LARGE': 800.0,
     };
 
-    final result = await parcelService.saveParcel(parcelData);
-    if (result != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Parcel Created Successfully!")),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Failed to create parcel!")),
-      );
+    base = feeMap[size] ?? 0;
+
+    // Optional: add extra cost for different district
+    if (selectedSenderDistrict != null &&
+        selectedReceiverDistrict != null &&
+        selectedSenderDistrict!.id != selectedReceiverDistrict!.id) {
+      base += 100; // extra fee if different district
     }
+
+    setState(() {
+      fee = base;
+    });
+  }
+
+  // ✅ Save Parcel
+  Future<void> saveParcel() async {
+    if (senderName.text.isEmpty ||
+        senderPhone.text.isEmpty ||
+        selectedSenderCountry == null ||
+        selectedSenderDivision == null ||
+        selectedSenderDistrict == null ||
+        selectedSenderPoliceStation == null ||
+        senderLine1.text.isEmpty ||
+        senderLine2.text.isEmpty ||
+        receiverName.text.isEmpty ||
+        receiverPhone.text.isEmpty ||
+        selectedReceiverCountry == null ||
+        selectedReceiverDivision == null ||
+        selectedReceiverDistrict == null ||
+        selectedReceiverPoliceStation == null ||
+        receiverLine1.text.isEmpty ||
+        receiverLine2.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all required fields')),
+      );
+      return;
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final consumerId = prefs.getInt('consumerId') ?? 1;
+    final trackingId = uuid.v4();
+
+    final parcel = Parcel(
+      senderName: senderName.text,
+      senderPhone: senderPhone.text,
+      receiverName: receiverName.text,
+      receiverPhone: receiverPhone.text,
+      addressLineForSender1: senderLine1.text,
+      addressLineForSender2: senderLine2.text,
+      addressLineForReceiver1: receiverLine1.text,
+      addressLineForReceiver2: receiverLine2.text,
+      senderCountryId: selectedSenderCountry!.id,
+      senderDivisionId: selectedSenderDivision!.id,
+      senderDistrictId: selectedSenderDistrict!.id,
+      senderPoliceStationId: selectedSenderPoliceStation!.id,
+      receiverCountryId: selectedReceiverCountry!.id,
+      receiverDivisionId: selectedReceiverDivision!.id,
+      receiverDistrictId: selectedReceiverDistrict!.id,
+      receiverPoliceStationId: selectedReceiverPoliceStation!.id,
+      trackingId: trackingId,
+      // consumerId: consumerId,
+      // size: size,
+      // fee: fee,
+    );
+
+    bool success = await parcelService.addParcel(parcel);
+
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content:
+      Text(success ? 'Parcel Saved Successfully' : 'Failed to Save Parcel'),
+      backgroundColor: success ? Colors.green : Colors.red,
+    ));
   }
 
   @override
@@ -144,38 +195,121 @@ class _AddParcelPageState extends State<AddParcelPage> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextField(
-              decoration: const InputDecoration(labelText: "Sender Name"),
-              onChanged: (v) => senderName = v,
-            ),
-            TextField(
-              decoration: const InputDecoration(labelText: "Sender Phone"),
-              onChanged: (v) => senderPhone = v,
-            ),
-            DropdownButtonFormField<int>(
-              value: sendCountry,
-              hint: const Text("Select Country"),
-              items: countries.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
-              onChanged: (v) {
-                sendCountry = v;
-                onSendCountryChange(v!);
+            const Text("Sender Information",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            TextField(controller: senderName, decoration: const InputDecoration(labelText: 'Sender Name')),
+            TextField(controller: senderPhone, decoration: const InputDecoration(labelText: 'Sender Phone')),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<Country>(
+              value: selectedSenderCountry,
+              decoration: const InputDecoration(labelText: 'Sender Country'),
+              items: countries.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(),
+              onChanged: (val) {
+                setState(() => selectedSenderCountry = val);
+                if (val != null) loadDivisions(val.id, true);
               },
             ),
-            if (divisions.isNotEmpty)
-              DropdownButtonFormField<int>(
-                value: sendDivision,
-                hint: const Text("Select Division"),
-                items: divisions.map((d) => DropdownMenuItem(value: d.id, child: Text(d.name))).toList(),
-                onChanged: (v) {
-                  sendDivision = v;
-                  onSendDivisionChange(v!);
-                },
-              ),
-            const SizedBox(height: 16),
+            DropdownButtonFormField<Division>(
+              value: selectedSenderDivision,
+              decoration: const InputDecoration(labelText: 'Sender Division'),
+              items: divisions.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
+              onChanged: (val) {
+                setState(() => selectedSenderDivision = val);
+                if (val != null) loadDistricts(val.id, true);
+              },
+            ),
+            DropdownButtonFormField<District>(
+              value: selectedSenderDistrict,
+              decoration: const InputDecoration(labelText: 'Sender District'),
+              items: districts.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
+              onChanged: (val) {
+                setState(() => selectedSenderDistrict = val);
+                if (val != null) loadPoliceStations(val.id, true);
+              },
+            ),
+            DropdownButtonFormField<PoliceStation>(
+              value: selectedSenderPoliceStation,
+              decoration: const InputDecoration(labelText: 'Sender Police Station'),
+              items: policeStations.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
+              onChanged: (val) {
+                setState(() => selectedSenderPoliceStation = val);
+              },
+            ),
+            TextField(controller: senderLine1, decoration: const InputDecoration(labelText: 'Sender Address Line 1')),
+            TextField(controller: senderLine2, decoration: const InputDecoration(labelText: 'Sender Address Line 2')),
+
+            const SizedBox(height: 20),
+            const Text("Receiver Information",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            TextField(controller: receiverName, decoration: const InputDecoration(labelText: 'Receiver Name')),
+            TextField(controller: receiverPhone, decoration: const InputDecoration(labelText: 'Receiver Phone')),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<Country>(
+              value: selectedReceiverCountry,
+              decoration: const InputDecoration(labelText: 'Receiver Country'),
+              items: countries.map((c) => DropdownMenuItem(value: c, child: Text(c.name))).toList(),
+              onChanged: (val) {
+                setState(() => selectedReceiverCountry = val);
+                if (val != null) loadDivisions(val.id, false);
+              },
+            ),
+            DropdownButtonFormField<Division>(
+              value: selectedReceiverDivision,
+              decoration: const InputDecoration(labelText: 'Receiver Division'),
+              items: divisions.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
+              onChanged: (val) {
+                setState(() => selectedReceiverDivision = val);
+                if (val != null) loadDistricts(val.id, false);
+              },
+            ),
+            DropdownButtonFormField<District>(
+              value: selectedReceiverDistrict,
+              decoration: const InputDecoration(labelText: 'Receiver District'),
+              items: districts.map((d) => DropdownMenuItem(value: d, child: Text(d.name))).toList(),
+              onChanged: (val) {
+                setState(() => selectedReceiverDistrict = val);
+                if (val != null) loadPoliceStations(val.id, false);
+              },
+            ),
+            DropdownButtonFormField<PoliceStation>(
+              value: selectedReceiverPoliceStation,
+              decoration: const InputDecoration(labelText: 'Receiver Police Station'),
+              items: policeStations.map((p) => DropdownMenuItem(value: p, child: Text(p.name))).toList(),
+              onChanged: (val) {
+                setState(() => selectedReceiverPoliceStation = val);
+              },
+            ),
+            TextField(controller: receiverLine1, decoration: const InputDecoration(labelText: 'Receiver Address Line 1')),
+            TextField(controller: receiverLine2, decoration: const InputDecoration(labelText: 'Receiver Address Line 2')),
+
+            const SizedBox(height: 20),
+            DropdownButtonFormField<String>(
+              value: size,
+              decoration: const InputDecoration(labelText: 'Parcel Size'),
+              items: const [
+                DropdownMenuItem(value: 'SMALL', child: Text('Small')),
+                DropdownMenuItem(value: 'MEDIUM', child: Text('Medium')),
+                DropdownMenuItem(value: 'LARGE', child: Text('Large')),
+                DropdownMenuItem(value: 'EXTRA_LARGE', child: Text('Extra Large')),
+              ],
+              onChanged: (val) {
+                setState(() => size = val);
+                calculateFee();
+              },
+            ),
+
+            const SizedBox(height: 10),
+            Text("Calculated Fee: ৳${fee.toStringAsFixed(2)}",
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+
+            const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: submitParcel,
-              child: const Text("Submit Parcel"),
+              onPressed: saveParcel,
+              child: const Text('Save Parcel'),
             ),
           ],
         ),
