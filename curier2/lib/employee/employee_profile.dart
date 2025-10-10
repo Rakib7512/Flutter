@@ -1,6 +1,9 @@
+import 'package:curier2/page/add_parcel.dart';
+import 'package:curier2/page/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:curier2/service/authService.dart';
 import 'package:curier2/loginpage.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class EmployeeProfile extends StatelessWidget {
   final Map<String, dynamic> profile;
@@ -34,7 +37,13 @@ class EmployeeProfile extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.white),
-            onPressed: () {},
+            onPressed: ()async {
+              await _authService.logout();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => NotificationsPage()),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.white),
@@ -46,6 +55,20 @@ class EmployeeProfile extends StatelessWidget {
               );
             },
           ),
+
+          // 🟣 Add Parcel Button
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddParcelPage()),
+              );
+            },
+            child: Text("Book Parcel",
+                style: GoogleFonts.poppins(
+                    color: Colors.blueAccent, fontWeight: FontWeight.w600)),
+          ),
+
         ],
       ),
 
