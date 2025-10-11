@@ -197,18 +197,18 @@ class _AddParcelPageState extends State<AddParcelPage> {
       addressLineForSender2: senderLine2.text,
       addressLineForReceiver1: receiverLine1.text,
       addressLineForReceiver2: receiverLine2.text,
-      sendCountry: selectedSenderCountry!.id,
-      sendDivision: selectedSenderDivision!.id,
-      sendDistrict: selectedSenderDistrict!.id,
-      sendPoliceStation: selectedSenderPoliceStation!.id,
-      receiveCountry: selectedReceiverCountry!.id,
-      receiveDivision: selectedReceiverDivision!.id,
-      receiveDistrict: selectedReceiverDistrict!.id,
-      receivePoliceStation: selectedReceiverPoliceStation!.id,
+      sendCountry: {'id': selectedSenderCountry!.id},
+      sendDivision: {'id': selectedSenderDivision!.id},
+      sendDistrict: {'id': selectedSenderDistrict!.id},
+      sendPoliceStation: {'id': selectedSenderPoliceStation!.id},
+      receiveCountry: {'id': selectedReceiverCountry!.id},
+      receiveDivision: {'id': selectedReceiverDivision!.id},
+      receiveDistrict: {'id': selectedReceiverDistrict!.id},
+      receivePoliceStation: {'id': selectedReceiverPoliceStation!.id},
       trackingId: trackingId,
-      // consumerId: consumerId,
-       size: size,
+      size: size ?? 'SMALL',
       fee: fee.round(),
+      consumer: {'id': consumerId}, // if needed
     );
 
 
@@ -340,7 +340,7 @@ class _AddParcelPageState extends State<AddParcelPage> {
                 DropdownMenuItem(value: 'EXTRA_LARGE', child: Text('Extra Large')),
               ],
               onChanged: (val) {
-                setState(() => size = val);
+                setState(() => size = val ?? 'SMALL');
                 calculateFee();
               },
             ),

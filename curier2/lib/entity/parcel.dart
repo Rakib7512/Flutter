@@ -1,39 +1,34 @@
-import 'package:uuid/uuid.dart';
-
 class Parcel {
-  String? trackingId;
-  String? senderName;
-  String? receiverName;
-  String? senderPhone;
-  String? receiverPhone;
-  String? addressLineForSender1;
-  String? addressLineForSender2;
-  String? addressLineForReceiver1;
-  String? addressLineForReceiver2;
-
-  final int sendCountry;
-  final int sendDivision;
-  final int sendDistrict;
-  final int sendPoliceStation;
-
-  final int receiveCountry;
-  final int receiveDivision;
-  final int receiveDistrict;
-  final int receivePoliceStation;
-
-  String? size;
-  int? fee;
+  final String senderName;
+  final String senderPhone;
+  final String receiverName;
+  final String receiverPhone;
+  final String addressLineForSender1;
+  final String addressLineForSender2;
+  final String addressLineForReceiver1;
+  final String addressLineForReceiver2;
+  final Map<String, dynamic> sendCountry;
+  final Map<String, dynamic> sendDivision;
+  final Map<String, dynamic> sendDistrict;
+  final Map<String, dynamic> sendPoliceStation;
+  final Map<String, dynamic> receiveCountry;
+  final Map<String, dynamic> receiveDivision;
+  final Map<String, dynamic> receiveDistrict;
+  final Map<String, dynamic> receivePoliceStation;
+  final Map<String, dynamic>? consumer;
+  final String trackingId;
+  final String size;
+  final int fee;
 
   Parcel({
-    this.trackingId,
-    this.senderName,
-    this.receiverName,
-    this.senderPhone,
-    this.receiverPhone,
-    this.addressLineForSender1,
-    this.addressLineForSender2,
-    this.addressLineForReceiver1,
-    this.addressLineForReceiver2,
+    required this.senderName,
+    required this.senderPhone,
+    required this.receiverName,
+    required this.receiverPhone,
+    required this.addressLineForSender1,
+    required this.addressLineForSender2,
+    required this.addressLineForReceiver1,
+    required this.addressLineForReceiver2,
     required this.sendCountry,
     required this.sendDivision,
     required this.sendDistrict,
@@ -42,58 +37,34 @@ class Parcel {
     required this.receiveDivision,
     required this.receiveDistrict,
     required this.receivePoliceStation,
-    this.size,
-    this.fee,
-  }) {
-    // Generate a tracking ID automatically if not provided
-    trackingId ??= const Uuid().v4();
-  }
+    this.consumer,
+    required this.trackingId,
+    required this.size,
+    required this.fee,
+  });
 
   Map<String, dynamic> toJson() {
     return {
-      "trackingId": trackingId,
-      "senderName": senderName,
-      "receiverName": receiverName,
-      "senderPhone": senderPhone,
-      "receiverPhone": receiverPhone,
-      "addressLineForSender1": addressLineForSender1,
-      "addressLineForSender2": addressLineForSender2,
-
-      "addressLineForReceiver1": addressLineForReceiver1,
-      "addressLineForReceiver2": addressLineForReceiver2,
-
-      "countrySender": {"id": sendCountry},
-      "divisionSender": {"id": sendDivision},
-      "districtSender": {"id": sendDistrict},
-      "policeStationSender": {"id": sendPoliceStation},
-
-      "countryReceiver": {"id": receiveCountry},
-      "divisionReceiver": {"id": receiveDivision},
-      "districtReceiver": {"id": receiveDistrict},
-      "policeStationReceiver": {"id": receivePoliceStation},
-      "size": size,
-      "fee": fee,
+      'senderName': senderName,
+      'senderPhone': senderPhone,
+      'receiverName': receiverName,
+      'receiverPhone': receiverPhone,
+      'addressLineForSender1': addressLineForSender1,
+      'addressLineForSender2': addressLineForSender2,
+      'addressLineForReceiver1': addressLineForReceiver1,
+      'addressLineForReceiver2': addressLineForReceiver2,
+      'sendCountry': sendCountry,
+      'sendDivision': sendDivision,
+      'sendDistrict': sendDistrict,
+      'sendPoliceStation': sendPoliceStation,
+      'receiveCountry': receiveCountry,
+      'receiveDivision': receiveDivision,
+      'receiveDistrict': receiveDistrict,
+      'receivePoliceStation': receivePoliceStation,
+      'trackingId': trackingId,
+      'size': size,
+      'fee': fee,
+      'consumer': consumer,
     };
   }
-
-
-
-  @override
-  String toString() {
-    return '''
-Parcel:
-  Sender: $senderName, Phone: $senderPhone
-  Receiver: $receiverName, Phone: $receiverPhone
-  Sender Address: $addressLineForSender1, $addressLineForSender2
-  Receiver Address: $addressLineForReceiver1, $addressLineForReceiver2
-  Sender Location IDs: Country $sendCountry, Division $sendDivision, District $sendDistrict, PoliceStation $sendPoliceStation
-  Receiver Location IDs: Country $receiveCountry, Division $receiveDivision, District $receiveDistrict, PoliceStation $receivePoliceStation
-  Tracking ID: $trackingId
-}
-  Size: $size
-  Fee: $fee
-''';
-  }
-
-
 }
