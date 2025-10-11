@@ -1,4 +1,5 @@
 import 'package:curier2/page/add_parcel.dart';
+import 'package:curier2/page/final_delivery.dart';
 import 'package:curier2/page/notification.dart';
 import 'package:flutter/material.dart';
 import 'package:curier2/service/authService.dart';
@@ -42,6 +43,16 @@ class EmployeeProfile extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (_) => NotificationsPage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.notifications_none, color: Colors.white),
+            onPressed: ()async {
+              await _authService.logout();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => FinalDeliveryPage()),
               );
             },
           ),
