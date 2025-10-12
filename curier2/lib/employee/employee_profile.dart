@@ -1,6 +1,7 @@
 import 'package:curier2/page/add_parcel.dart';
 import 'package:curier2/page/final_delivery.dart';
 import 'package:curier2/page/notification.dart';
+import 'package:curier2/page/track_parcel.dart';
 import 'package:flutter/material.dart';
 import 'package:curier2/service/authService.dart';
 import 'package:curier2/loginpage.dart';
@@ -53,6 +54,16 @@ class EmployeeProfile extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (_) => FinalDeliveryPage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.spatial_tracking, color: Colors.white),
+            onPressed: ()async {
+              await _authService.logout();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => TrackParcelPage()),
               );
             },
           ),

@@ -3,6 +3,7 @@ import 'package:curier2/entity/country.dart';
 import 'package:curier2/entity/district.dart';
 import 'package:curier2/entity/division.dart';
 import 'package:curier2/entity/parcel.dart';
+import 'package:curier2/entity/parcel_tracking.dart';
 import 'package:curier2/entity/police_station.dart';
 import 'package:http/http.dart' as http;
 
@@ -89,4 +90,19 @@ class ParcelService {
       throw Exception("Failed to load parcel history");
     }
   }
+
+  Future<List<ParcelTrackingDTO>> getParcelTracking(String trackingId) async {
+    final url = Uri.parse('$baseUrl/parcels/parcel/$trackingId/tracking');
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((item) => ParcelTrackingDTO.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load tracking history');
+    }
+  }
+
+
 }

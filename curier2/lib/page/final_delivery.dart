@@ -15,6 +15,7 @@ class _FinalDeliveryPageState extends State<FinalDeliveryPage> {
   final DeliveryService _deliveryService = DeliveryService();
 
   String? _hubName;
+  String? _hubNumber; // ✅ declared here (top level)
   int? _employeeId;
   String _message = '';
   bool _loading = false;
@@ -28,8 +29,9 @@ class _FinalDeliveryPageState extends State<FinalDeliveryPage> {
   Future<void> _loadEmployeeData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _hubName = prefs.getString('employeeHub');
       _employeeId = prefs.getInt('employeeId');
+      _hubName = prefs.getString('employeeHub');
+      _hubNumber = prefs.getString('employeeHubNumber');
     });
   }
 
@@ -88,7 +90,7 @@ class _FinalDeliveryPageState extends State<FinalDeliveryPage> {
                       Expanded(
                         child: TextFormField(
                           readOnly: true,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Employee ID',
                             border: OutlineInputBorder(),
                           ),
@@ -99,7 +101,7 @@ class _FinalDeliveryPageState extends State<FinalDeliveryPage> {
                       Expanded(
                         child: TextFormField(
                           readOnly: true,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Hub Name',
                             border: OutlineInputBorder(),
                           ),
@@ -108,12 +110,27 @@ class _FinalDeliveryPageState extends State<FinalDeliveryPage> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 10),
+                  // Optional Hub Number (if you want to show)
+                  if (_hubNumber != null && _hubNumber!.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10.0),
+                      child: TextFormField(
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: 'Hub Number',
+                          border: OutlineInputBorder(),
+                        ),
+                        initialValue: _hubNumber ?? '',
+                      ),
+                    ),
+
                   const SizedBox(height: 20),
 
                   // Tracking ID
                   TextFormField(
                     controller: _trackingIdController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Tracking ID',
                       hintText: 'Enter Tracking ID',
                       border: OutlineInputBorder(),
@@ -140,10 +157,8 @@ class _FinalDeliveryPageState extends State<FinalDeliveryPage> {
                     label: Text(_loading ? 'Processing...' : 'Deliver Parcel'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
-                      padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                      textStyle:
-                      const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
 
@@ -154,9 +169,7 @@ class _FinalDeliveryPageState extends State<FinalDeliveryPage> {
                     Text(
                       _message,
                       style: TextStyle(
-                        color: _message.startsWith('✅')
-                            ? Colors.green
-                            : Colors.red,
+                        color: _message.startsWith('✅') ? Colors.green : Colors.red,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
