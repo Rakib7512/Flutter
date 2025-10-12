@@ -68,4 +68,25 @@ class ParcelService {
     }
     throw Exception('Failed to load police stations');
   }
+
+
+  // 🟣 Get parcel history for logged-in consumer
+  Future<List<dynamic>> getParcelHistoryByConsumer(String token) async {
+    final url = Uri.parse('$baseUrl/parcels/history');
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      print("Error loading parcel history: ${response.statusCode}");
+      throw Exception("Failed to load parcel history");
+    }
+  }
 }
