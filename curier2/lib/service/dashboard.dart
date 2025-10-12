@@ -15,7 +15,7 @@ class PublicCourierDashboard extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 2,
         title: Text(
-          "Real Courier Service",
+          "Real Service",
           style: GoogleFonts.poppins(
               color: Colors.black87, fontWeight: FontWeight.w600),
         ),
@@ -248,7 +248,7 @@ class PublicCourierDashboard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Monthly Delivery Overview",
+            "Monthly Service Overview",
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w600,
               fontSize: 16,
@@ -359,7 +359,7 @@ class PublicCourierDashboard extends StatelessWidget {
                 ]),
                 DataRow(cells: [
                   DataCell(Text("PKG1002")),
-                  DataCell(Text("Karim")),
+                  DataCell(Text("Pooki")),
                   DataCell(Text("In Transit")),
                   DataCell(Text("2025-10-05")),
                 ]),
