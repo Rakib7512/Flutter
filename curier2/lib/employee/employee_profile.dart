@@ -48,7 +48,7 @@ class EmployeeProfile extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.notifications_none, color: Colors.white),
+            icon: const Icon(Icons.delivery_dining, color: Colors.white),
             onPressed: ()async {
               await _authService.logout();
               Navigator.pushReplacement(

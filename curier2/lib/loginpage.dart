@@ -7,6 +7,7 @@ import 'package:curier2/service/consumer_service.dart';
 import 'package:curier2/service/employee_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -137,7 +138,19 @@ class _LoginPageState extends State<LoginPage> {
       } else if (role == 'EMPLOYEE') {
         final profile = await EmployeeService().getEmployeeProfile();
 
+
+
+
         if (profile != null) {
+          // Assuming profile is a Map and has an 'id' field
+          final employeeId = profile['id'];
+
+          // Save to SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setInt('EmployeeID', employeeId);
+
+          print('Employee ID saved: $employeeId');
+
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(

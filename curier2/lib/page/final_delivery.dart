@@ -14,6 +14,8 @@ class _FinalDeliveryPageState extends State<FinalDeliveryPage> {
   final TextEditingController _trackingIdController = TextEditingController();
   final DeliveryService _deliveryService = DeliveryService();
 
+
+
   String? _hubName;
   String? _hubNumber; // ✅ declared here (top level)
   int? _employeeId;
@@ -24,6 +26,7 @@ class _FinalDeliveryPageState extends State<FinalDeliveryPage> {
   void initState() {
     super.initState();
     _loadEmployeeData();
+    _loadEmployeeId();
   }
 
   Future<void> _loadEmployeeData() async {
@@ -32,6 +35,13 @@ class _FinalDeliveryPageState extends State<FinalDeliveryPage> {
       _employeeId = prefs.getInt('employeeId');
       _hubName = prefs.getString('employeeHub');
       _hubNumber = prefs.getString('employeeHubNumber');
+    });
+  }
+
+  Future<void> _loadEmployeeId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _employeeId = prefs.getInt('EmployeeID');
     });
   }
 
@@ -94,7 +104,7 @@ class _FinalDeliveryPageState extends State<FinalDeliveryPage> {
                             labelText: 'Employee ID',
                             border: OutlineInputBorder(),
                           ),
-                          initialValue: _employeeId?.toString() ?? '',
+                            initialValue: _employeeId?.toString() ?? '',
                         ),
                       ),
                       const SizedBox(width: 10),
