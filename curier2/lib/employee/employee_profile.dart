@@ -39,9 +39,8 @@ class EmployeeProfile extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.white),
-            onPressed: ()async {
-              await _authService.logout();
-              Navigator.pushReplacement(
+            onPressed: () {
+              Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => NotificationsPage()),
               );
@@ -49,9 +48,8 @@ class EmployeeProfile extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.delivery_dining, color: Colors.white),
-            onPressed: ()async {
-              await _authService.logout();
-              Navigator.pushReplacement(
+            onPressed: () {
+              Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => FinalDeliveryPage()),
               );
@@ -59,9 +57,8 @@ class EmployeeProfile extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.spatial_tracking, color: Colors.white),
-            onPressed: ()async {
-              await _authService.logout();
-              Navigator.pushReplacement(
+            onPressed: () {
+              Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => TrackParcelPage()),
               );
@@ -86,11 +83,12 @@ class EmployeeProfile extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => AddParcelPage()),
               );
             },
-            child: Text("Book Parcel",
-                style: GoogleFonts.poppins(
-                    color: Colors.blueAccent, fontWeight: FontWeight.w600)),
+            child: Text(
+              "Book Parcel",
+              style: GoogleFonts.poppins(
+                  color: Colors.blueAccent, fontWeight: FontWeight.w600),
+            ),
           ),
-
         ],
       ),
 
@@ -172,7 +170,8 @@ class EmployeeProfile extends StatelessWidget {
                       backgroundColor: Colors.white,
                       backgroundImage: (photoUrl != null)
                           ? NetworkImage(photoUrl)
-                          : const AssetImage('assets/default_avatar.png') as ImageProvider,
+                          : const AssetImage('assets/default_avatar.png')
+                      as ImageProvider,
                     ),
                   ),
                   Positioned(
