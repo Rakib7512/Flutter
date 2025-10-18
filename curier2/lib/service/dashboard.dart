@@ -1,179 +1,56 @@
-import 'package:curier2/loginpage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+// fl_chart is no longer needed on the public page, but keeping the import for now
 import 'package:fl_chart/fl_chart.dart';
+// Assuming these files exist in your project structure
+import 'package:curier2/loginpage.dart';
 import 'package:curier2/registration.dart';
 
-class PublicCourierDashboard extends StatelessWidget {
-  const PublicCourierDashboard({super.key});
+class CourierHomePage extends StatelessWidget {
+  const CourierHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Media Query for responsive design
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FA),
+      backgroundColor: const Color(0xFFF7F9FC), // Very light, modern background
       appBar: AppBar(
         backgroundColor: Colors.white,
-        elevation: 2,
+        elevation: 1, // Subtle elevation
+        centerTitle: false,
         title: Text(
           "Real Service",
           style: GoogleFonts.poppins(
-              color: Colors.black87, fontWeight: FontWeight.w600),
+              color: const Color(0xFF1E3A8A), // Deep Blue
+              fontWeight: FontWeight.w800),
         ),
         actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Registration()),
-              );
-            },
-            child: Text("Register",
-                style: GoogleFonts.poppins(
-                    color: Colors.blueAccent, fontWeight: FontWeight.w600)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
-              );
-            },
-            child: Text("Login",
-                style: GoogleFonts.poppins(
-                    color: Colors.blueAccent, fontWeight: FontWeight.w600)),
-          ),
-          const SizedBox(width: 16),
+          _buildAuthButton(context, "Register", () => Registration(), isPrimary: true),
+          _buildAuthButton(context, "Login", () => LoginPage(), isPrimary: false),
+          const SizedBox(width: 12),
         ],
       ),
-
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🌟 Hero Section
-              Container(
-                width: double.infinity,
-                padding:
-                const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF4A90E2), Color(0xFF007AFF)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      "Fast • Secure • Reliable",
-                      style: GoogleFonts.poppins(
-                        color: Colors.white70,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      "Track Your Parcel Anytime, Anywhere",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.poppins(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+              // 🌟 Hero Section & Tracking (The main focus)
+              _buildHeroSection(screenWidth),
 
-                    // 🔍 Parcel Search Bar
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black12.withOpacity(0.15),
-                            blurRadius: 10,
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: "Enter your tracking ID...",
-                                hintStyle: GoogleFonts.poppins(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                ),
-                                border: InputBorder.none,
-                              ),
-                            ),
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              // TODO: Track Parcel
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blueAccent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                            icon: const Icon(Icons.search, color: Colors.white),
-                            label: Text(
-                              "Track",
-                              style: GoogleFonts.poppins(
-                                color: Colors.white,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 50),
 
-              const SizedBox(height: 30),
+              // ✨ Key Features/Benefits Section
+              _buildFeatureSection(),
 
-              // 📦 Stats Section (fixed overflow with Wrap)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  alignment: WrapAlignment.spaceBetween,
-                  children: [
-                    _buildStatCard("Total Parcels", "248", Icons.local_shipping,
-                        Colors.blueAccent),
-                    _buildStatCard("Delivered", "198", Icons.check_circle,
-                        Colors.green),
-                    _buildStatCard("In Transit", "32", Icons.directions_bus,
-                        Colors.orangeAccent),
-                    _buildStatCard("Pending", "18", Icons.pending_actions,
-                        Colors.redAccent),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 50),
 
-              const SizedBox(height: 24),
+              // 🚀 Call to Action Banner
+              _buildCTABanner(context),
 
-              // 📈 Chart
-              _buildChartSection(),
-
-              const SizedBox(height: 24),
-
-              // 🗂 Recent Parcels
-              _buildRecentParcelTable(),
-
-              const SizedBox(height: 40),
+              const SizedBox(height: 50),
             ],
           ),
         ),
@@ -181,66 +58,45 @@ class PublicCourierDashboard extends StatelessWidget {
     );
   }
 
-  // --- WIDGETS BELOW --- //
+  // --- WIDGET BUILDERS --- //
 
-  Widget _buildStatCard(
-      String title, String value, IconData icon, Color color) {
-    return SizedBox(
-      width: 160,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12.withOpacity(0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            CircleAvatar(
-              backgroundColor: color.withOpacity(0.15),
-              child: Icon(icon, color: color),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              title,
-              style: GoogleFonts.poppins(
-                fontWeight: FontWeight.w500,
-                color: Colors.black54,
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
+  Widget _buildAuthButton(
+      BuildContext context, String text, Widget Function() targetPage,
+      {required bool isPrimary}) {
+    final Color accentColor = const Color(0xFF3B82F6); // Tailwind Blue 500
+
+    return TextButton(
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => targetPage()),
+        );
+      },
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
+      child: Text(text,
+          style: GoogleFonts.poppins(
+              color: isPrimary ? accentColor : Colors.black87,
+              fontWeight: FontWeight.w600)),
     );
   }
 
-  Widget _buildChartSection() {
+  Widget _buildHeroSection(double screenWidth) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(25, 40, 25, 50),
+      decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Color(0x0A000000), // Very light shadow
+            blurRadius: 20,
+            offset: Offset(0, 8),
           ),
         ],
       ),
@@ -248,65 +104,59 @@ class PublicCourierDashboard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Monthly Service Overview",
+            "Welcome to Next-Gen Logistics",
             style: GoogleFonts.poppins(
+              color: const Color(0xFF3B82F6), // Accent Blue
+              fontSize: 18,
               fontWeight: FontWeight.w600,
-              fontSize: 16,
             ),
           ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 200,
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(show: true),
-                titlesData: FlTitlesData(
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        const months = [
-                          'Jan',
-                          'Feb',
-                          'Mar',
-                          'Apr',
-                          'May',
-                          'Jun'
-                        ];
-                        if (value < 0 || value >= months.length) {
-                          return const Text('');
-                        }
-                        return Text(
-                          months[value.toInt()],
-                          style: const TextStyle(fontSize: 10),
-                        );
-                      },
+          const SizedBox(height: 12),
+          Text(
+            "Seamless Tracking, Reliable Delivery.",
+            style: GoogleFonts.poppins(
+              color: Colors.black,
+              fontSize: 32, // Bolder title
+              fontWeight: FontWeight.bold,
+              height: 1.2,
+            ),
+          ),
+          const SizedBox(height: 30),
+          // 🔍 Tracking Input Field
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFFE0E7FF), // Lighter Blue Background
+              borderRadius: BorderRadius.circular(15),
+            ),
+            padding: const EdgeInsets.only(left: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Enter tracking ID...",
+                      hintStyle: GoogleFonts.poppins(
+                        color: Colors.black54,
+                        fontSize: 16,
+                      ),
+                      border: InputBorder.none,
                     ),
                   ),
-                  leftTitles:
-                  AxisTitles(sideTitles: SideTitles(showTitles: true)),
                 ),
-                borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: const [
-                      FlSpot(0, 50),
-                      FlSpot(1, 70),
-                      FlSpot(2, 100),
-                      FlSpot(3, 120),
-                      FlSpot(4, 140),
-                      FlSpot(5, 180),
-                    ],
-                    isCurved: true,
-                    color: Colors.blueAccent,
-                    barWidth: 3,
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: Colors.blueAccent.withOpacity(0.2),
-                    ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3B82F6),
+                    borderRadius: BorderRadius.circular(15),
                   ),
-                ],
-              ),
+                  height: 60,
+                  width: screenWidth > 600 ? 140 : 80, // Responsive button width
+                  child: Center(
+                    child: screenWidth > 600
+                        ? Text("Track", style: GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16))
+                        : const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -314,18 +164,134 @@ class PublicCourierDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildRecentParcelTable() {
+  Widget _buildFeatureSection() {
+    final List<Map<String, dynamic>> features = [
+      {
+        "title": "Fast Delivery",
+        "description": "Deliver your goods to the destination in minimal time.",
+        "icon": Icons.speed,
+        "color": Colors.green.shade600
+      },
+      {
+        "title": "Secure Handling",
+        "description": "We ensure package transportation with maximum security and care.",
+        "icon": Icons.security,
+        "color": Colors.orange.shade600
+      },
+      {
+        "title": "24/7 Support",
+        "description": "Our support team is always ready for any assistance you may need.",
+        "icon": Icons.support_agent,
+        "color": Colors.blue.shade600
+      },
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Why Choose Us?",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w700,
+              fontSize: 24,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 25),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: features.length,
+            itemBuilder: (context, index) {
+              final feature = features[index];
+              return _buildFeatureItem(
+                  feature["title"]!,
+                  feature["description"]!,
+                  feature["icon"],
+                  feature["color"]);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureItem(
+      String title, String description, IconData icon, Color color) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 18),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.grey.shade100),
         boxShadow: [
           BoxShadow(
-            color: Colors.black12.withOpacity(0.05),
+            color: color.withOpacity(0.1),
             blurRadius: 10,
-            offset: const Offset(0, 4),
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 28),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 18,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  description,
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14,
+                    color: Colors.black54,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCTABanner(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 25),
+      padding: const EdgeInsets.all(30),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [const Color(0xFF3B82F6), const Color(0xFF1D4ED8)], // Refined Blue Gradient
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1D4ED8).withOpacity(0.4),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -333,45 +299,70 @@ class PublicCourierDashboard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Recent Parcels",
+            "Join Our Service Today",
             style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
             ),
           ),
           const SizedBox(height: 10),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: DataTable(
-              columnSpacing: 40,
-              columns: const [
-                DataColumn(label: Text("Tracking ID")),
-                DataColumn(label: Text("Receiver")),
-                DataColumn(label: Text("Status")),
-                DataColumn(label: Text("Date")),
-              ],
-              rows: const [
-                DataRow(cells: [
-                  DataCell(Text("PKG1001")),
-                  DataCell(Text("Rahim")),
-                  DataCell(Text("Delivered")),
-                  DataCell(Text("2025-10-03")),
-                ]),
-                DataRow(cells: [
-                  DataCell(Text("PKG1002")),
-                  DataCell(Text("Pooki")),
-                  DataCell(Text("In Transit")),
-                  DataCell(Text("2025-10-05")),
-                ]),
-                DataRow(cells: [
-                  DataCell(Text("PKG1003")),
-                  DataCell(Text("Nusrat")),
-                  DataCell(Text("Pending")),
-                  DataCell(Text("2025-10-06")),
-                ]),
-              ],
+          Text(
+            "Register or log in to manage your shipments and track your deliveries.",
+            style: GoogleFonts.poppins(
+              color: Colors.white70,
+              fontSize: 16,
             ),
           ),
+          const SizedBox(height: 30),
+          Row(
+            children: [
+              // Registration Button
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Registration()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF1D4ED8),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    elevation: 5,
+                  ),
+                  child: Text("Register Now",
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w700, fontSize: 16)),
+                ),
+              ),
+              const SizedBox(width: 15),
+              // Login Button (Secondary CTA)
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.white, width: 2),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                  ),
+                  child: Text("Login",
+                      style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600, fontSize: 16)),
+                ),
+              ),
+            ],
+          )
         ],
       ),
     );

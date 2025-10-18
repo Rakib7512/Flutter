@@ -51,6 +51,7 @@ dependencies:
   mime: ^1.0.0
   fl_chart: ^0.66.0
   uuid: ^4.2.2  # (version may differ)
+  provider: ^6.0.5
 
 dev_dependencies:
   flutter_test:

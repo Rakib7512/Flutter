@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
 
         debugShowCheckedModeBanner: false,
-        home: PublicCourierDashboard()
+        home: CourierHomePage()
 
     );
 

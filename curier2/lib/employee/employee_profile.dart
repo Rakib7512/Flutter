@@ -1,5 +1,6 @@
 import 'package:curier2/page/add_parcel.dart';
 import 'package:curier2/page/final_delivery.dart';
+import 'package:curier2/page/hub_transfer.dart';
 import 'package:curier2/page/notification.dart';
 import 'package:curier2/page/track_parcel.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,15 @@ class EmployeeProfile extends StatelessWidget {
           ),
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.transfer_within_a_station_outlined, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => TransferHubScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.notifications_none, color: Colors.white),
             onPressed: () {
