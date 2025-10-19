@@ -52,6 +52,9 @@ dependencies:
   fl_chart: ^0.66.0
   uuid: ^4.2.2  # (version may differ)
   provider: ^6.0.5
+carousel_slider: ^4.2.0
+google_fonts: ^5.0.0
+
 
 dev_dependencies:
   flutter_test:
